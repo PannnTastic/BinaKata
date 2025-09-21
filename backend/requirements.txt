@@ -1,0 +1,10 @@
+fastapi==0.111.0
+uvicorn[standard]==0.30.3
+sqlmodel==0.0.22
+psycopg2-binary==2.9.9
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+pydantic-settings==2.4.0
+numpy==1.26.4
+tensorflow-cpu==2.15.0
+scikit-learn==1.5.1

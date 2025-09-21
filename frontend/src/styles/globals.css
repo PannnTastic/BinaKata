@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: light; }
+body { @apply bg-gray-50 text-gray-900; }
+.btn { @apply px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary-dark transition; }
+.card { @apply bg-white rounded-xl shadow p-4; }
