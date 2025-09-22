@@ -1,7 +1,7 @@
 'use client'
 import React, { useState } from 'react'
-import { apiBase } from '@/lib/api'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 export default function RegisterPage() {
   const [email, setEmail] = useState('')
@@ -12,22 +12,44 @@ export default function RegisterPage() {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(undefined)
-    const res = await fetch(`${apiBase()}/auth/register`, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email, password})})
-    if(!res.ok){ setError('Gagal daftar'); return }
+    const res = await fetch('/api/auth/register', {
+      method: 'POST', 
+      headers: {'Content-Type':'application/json'}, 
+      body: JSON.stringify({email, password})
+    })
+    if(!res.ok){ 
+      const data = await res.json()
+      setError(data.error || 'Gagal daftar')
+      return 
+    }
     const data = await res.json()
     localStorage.setItem('token', data.access_token)
     router.push('/dashboard')
   }
 
   return (
-    <main className="max-w-md mx-auto card space-y-4">
-      <h1 className="text-2xl font-bold">Daftar Akun</h1>
-      <form onSubmit={onSubmit} className="space-y-3">
-        <input className="w-full border rounded px-3 py-2" placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} />
-        <input type="password" className="w-full border rounded px-3 py-2" placeholder="Kata Sandi" value={password} onChange={e=>setPassword(e.target.value)} />
-        {error && <p className="text-red-600 text-sm">{error}</p>}
-        <button className="btn w-full">Daftar</button>
-      </form>
+    <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-white">
+      <div className="max-w-md w-full card space-y-6 p-8">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-primary">BinaKata</h1>
+          <p className="text-gray-600 mt-2">Daftar Akun</p>
+        </div>
+        <form onSubmit={onSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Email</label>
+            <input className="w-full border rounded-lg px-4 py-2.5" type="email" required value={email} onChange={e=>setEmail(e.target.value)} />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Kata Sandi</label>
+            <input className="w-full border rounded-lg px-4 py-2.5" type="password" required minLength={6} value={password} onChange={e=>setPassword(e.target.value)} />
+          </div>
+          {error && <p className="text-red-600 text-sm">{error}</p>}
+          <button className="btn w-full py-3">Daftar Sekarang</button>
+        </form>
+        <p className="text-center text-sm text-gray-600">
+          Sudah punya akun? <Link href="/auth/login" className="text-primary hover:underline">Masuk di sini</Link>
+        </p>
+      </div>
     </main>
   )
 }

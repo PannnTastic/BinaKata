@@ -1,9 +1,25 @@
-# Frontend - Next.js
 FROM node:20-alpine
 WORKDIR /app
-COPY package.json package-lock.json* pnpm-lock.yaml* yarn.lock* ./
-RUN if [ -f package-lock.json ]; then npm ci; elif [ -f yarn.lock ]; then yarn install --frozen-lockfile; elif [ -f pnpm-lock.yaml ]; then npm i -g pnpm && pnpm i --frozen-lockfile; else npm install; fi
+
+# Install OpenSSL for Prisma
+RUN apk add --no-cache openssl
+
+# Install dependencies
+COPY package.json ./
+RUN npm install
+
+# Copy prisma schema and generate client
+COPY prisma ./prisma
+RUN npx prisma generate
+
+# Copy source
 COPY . .
+
+# Build
 RUN npm run build
+
+COPY start.sh ./start.sh
+RUN chmod +x ./start.sh
+
 EXPOSE 3000
-CMD ["npm", "start"]
+CMD ["sh", "./start.sh"]

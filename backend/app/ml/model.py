@@ -2,7 +2,6 @@ import os
 import numpy as np
 from typing import Tuple
 from tensorflow import keras
-from tensorflow.keras import layers
 from ..config import settings
 
 MODEL_PATH = None
@@ -17,10 +16,10 @@ def _model_path() -> str:
 
 def _build_model(input_dim: int = 3) -> keras.Model:
     model = keras.Sequential([
-        layers.Input(shape=(input_dim,)),
-        layers.Dense(8, activation="relu"),
-        layers.Dense(4, activation="relu"),
-        layers.Dense(1, activation="sigmoid"),
+        keras.layers.Input(shape=(input_dim,)),
+        keras.layers.Dense(8, activation="relu"),
+        keras.layers.Dense(4, activation="relu"),
+        keras.layers.Dense(1, activation="sigmoid"),
     ])
     model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"])
     return model

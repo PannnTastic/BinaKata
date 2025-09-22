@@ -1,0 +1,119 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  children     Child[]
+}
+
+model Child {
+  id              String                @id @default(cuid())
+  parentId        String
+  name            String
+  age             Int?
+  createdAt       DateTime              @default(now())
+  parent          User                  @relation(fields: [parentId], references: [id])
+  assessments     Assessment[]
+  learningProgress LearningProgress[]
+  letterProgress  LetterProgress[]
+  spellingProgress SpellingProgress[]
+  wordProgress    WordProgress[]
+}
+
+model Assessment {
+  id             String           @id @default(cuid())
+  childId        String
+  startedAt      DateTime         @default(now())
+  submittedAt    DateTime?
+  riskScore      Float?
+  recommendation String?
+  child          Child            @relation(fields: [childId], references: [id])
+  items          AssessmentItem[]
+}
+
+model AssessmentItem {
+  id           String      @id @default(cuid())
+  assessmentId String
+  itemType     String      // letter|word|arrange
+  prompt       String
+  answer       String?
+  isCorrect    Boolean?
+  position     Int
+  assessment   Assessment  @relation(fields: [assessmentId], references: [id])
+}
+
+// Learning Progress Models
+model LearningProgress {
+  id             String   @id @default(cuid())
+  childId        String
+  moduleType     String   // letters|spelling|words
+  totalCompleted Int      @default(0)
+  currentLevel   Int      @default(1)
+  totalSessions  Int      @default(0)
+  streakDays     Int      @default(0)
+  lastSession    DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  child          Child    @relation(fields: [childId], references: [id])
+  
+  @@unique([childId, moduleType])
+}
+
+model LetterProgress {
+  id            String   @id @default(cuid())
+  childId       String
+  letter        String
+  isCompleted   Boolean  @default(false)
+  correctCount  Int      @default(0)
+  incorrectCount Int     @default(0)
+  lastAttempt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  child         Child    @relation(fields: [childId], references: [id])
+  
+  @@unique([childId, letter])
+}
+
+model SpellingProgress {
+  id            String   @id @default(cuid())
+  childId       String
+  wordIndex     Int
+  difficulty    Int      @default(1)
+  isCompleted   Boolean  @default(false)
+  correctCount  Int      @default(0)
+  incorrectCount Int     @default(0)
+  hintsUsed     Int      @default(0)
+  lastAttempt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  child         Child    @relation(fields: [childId], references: [id])
+  
+  @@unique([childId, wordIndex, difficulty])
+}
+
+model WordProgress {
+  id             String   @id @default(cuid())
+  childId        String
+  wordIndex      Int
+  difficulty     Int      @default(1)
+  isCompleted    Boolean  @default(false)
+  correctCount   Int      @default(0)
+  incorrectCount Int      @default(0)
+  hintsUsed      Int      @default(0)
+  shufflesUsed   Int      @default(0)
+  lastAttempt    DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  child          Child    @relation(fields: [childId], references: [id])
+  
+  @@unique([childId, wordIndex, difficulty])
+}
